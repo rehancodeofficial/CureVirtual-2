@@ -457,11 +457,12 @@ router.post("/subscription/stripe/checkout", async (req, res) => {
         .json({ error: `No Stripe Price configured for ${user.role} ${String(plan).toUpperCase()}` });
     }
 
-    const FRONTEND_URL = process.env.FRONTEND_URL || "http://localhost:5173";
+    const FRONTEND_URL = process.env.FRONTEND_URL || "https://curevirtual.vercel.app";
     const successUrl =
-      process.env.SUBS_SUCCESS_URL ||
-      `${FRONTEND_URL}/subscription/success?session_id={CHECKOUT_SESSION_ID}`;
-    const cancelUrl = process.env.SUBS_CANCEL_URL || `${FRONTEND_URL}/subscription/cancel`;
+      `${process.env.APP_BASE_URL || "https://curevirtual.vercel.app"}/subscription?status=success&session_id={CHECKOUT_SESSION_ID}`;
+    const cancelUrl =
+      process.env.STRIPE_CANCEL_URL ||
+      `${process.env.APP_BASE_URL || "https://curevirtual.vercel.app"}/subscription?status=cancel`;
 
     // ✅ MOCK CHECKOUT for invalid/placeholder keys
     // If the price ID looks fake (contains * or X), bypass Stripe and create subscription directly.
