@@ -10,12 +10,17 @@
 
 const jwt = require("jsonwebtoken");
 
-const JWT_SECRET = process.env.JWT_SECRET || "supersecretkey123";
+const JWT_SECRET = process.env.JWT_SECRET;
 
 /**
  * Verify JWT token and attach user to req
  */
 const verifyToken = (req, res, next) => {
+  if (!JWT_SECRET) {
+    console.error("❌ JWT_SECRET is missing in environment variables!");
+    return res.status(500).json({ success: false, message: "Internal server error: Security configuration missing" });
+  }
+
   let token;
   
   // Try to get token from Authorization header first
@@ -33,10 +38,14 @@ const verifyToken = (req, res, next) => {
 
   try {
     const decoded = jwt.verify(token, JWT_SECRET);
+    if (!decoded || !decoded.id) {
+      return res.status(403).json({ success: false, message: "Forbidden: Malformed token payload" });
+    }
     req.user = decoded; // user contains id, role, email, etc.
     next();
   } catch (err) {
-    return res.status(403).json({ success: false, message: "Forbidden: Invalid token" });
+    console.warn(`JWT verification failed: ${err.message}`);
+    return res.status(401).json({ success: false, message: "Unauthorized: Invalid or expired token" });
   }
 };
 
@@ -48,15 +57,20 @@ const requireRole = (allowedRoles) => {
   return (req, res, next) => {
     // Ensure verifyToken ran first
     if (!req.user) {
-      return res.status(401).json({ success: false, message: "Unauthorized: Token not verified" });
+      return res.status(401).json({ success: false, message: "Unauthorized: Please log in first" });
     }
 
-    const rolesArray = Array.isArray(allowedRoles) ? allowedRoles : [allowedRoles];
+    if (!req.user.role) {
+      return res.status(403).json({ success: false, message: "Forbidden: User role not found in token" });
+    }
 
-    if (!rolesArray.includes(req.user.role)) {
+    const userRole = String(req.user.role).toUpperCase();
+    const rolesArray = (Array.isArray(allowedRoles) ? allowedRoles : [allowedRoles]).map(r => String(r).toUpperCase());
+
+    if (!rolesArray.includes(userRole) && userRole !== "SUPERADMIN") {
       return res.status(403).json({ 
         success: false, 
-        message: `Forbidden: This action requires one of: ${rolesArray.join(", ")}. You have ${req.user.role}` 
+        message: `Forbidden: This action requires one of: ${rolesArray.join(", ")}. You have ${userRole}` 
       });
     }
 
