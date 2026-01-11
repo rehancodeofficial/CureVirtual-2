@@ -1,11 +1,10 @@
 // FILE: backend/routes/otp.js
 const express = require('express');
-const { PrismaClient } = require('@prisma/client');
+const prisma = require('../prisma/prismaClient');
 const { generateOTP, getOTPExpiration, isOTPExpired } = require('../lib/otpGenerator');
 const { sendOTPEmail } = require('../lib/emailService');
 
 const router = express.Router();
-const prisma = new PrismaClient();
 
 // Rate limiting map (in-memory for simplicity, use Redis in production)
 const rateLimitMap = new Map();
@@ -88,7 +87,7 @@ router.post('/send', async (req, res) => {
       });
     }
     
-    console.log(`📧 OTP sent to ${email}`);
+    console.log(`OTP sent to ${email}`);
     
     return res.status(200).json({ 
       message: 'OTP sent successfully',
@@ -143,7 +142,7 @@ router.post('/verify', async (req, res) => {
       data: { verified: true },
     });
     
-    console.log(`✅ OTP verified for ${email}`);
+    console.log(`OTP verified for ${email}`);
     
     return res.status(200).json({ 
       message: 'Email verified successfully',
@@ -209,7 +208,7 @@ router.post('/resend', async (req, res) => {
       });
     }
     
-    console.log(`📧 OTP resent to ${email}`);
+    console.log(`OTP resent to ${email}`);
     
     return res.status(200).json({ 
       message: 'OTP resent successfully',
@@ -236,7 +235,7 @@ router.delete('/cleanup', async (req, res) => {
       },
     });
     
-    console.log(`🧹 Cleaned up ${result.count} expired OTPs`);
+    console.log(`Cleaned up ${result.count} expired OTPs`);
     
     return res.status(200).json({ 
       message: 'Cleanup completed',

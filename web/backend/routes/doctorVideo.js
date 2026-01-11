@@ -1,10 +1,9 @@
 const express = require('express');
-const { PrismaClient } = require('@prisma/client');
 const crypto = require('crypto');
 const twilio = require('twilio');
 
 const router = express.Router();
-const prisma = new PrismaClient();
+const prisma = require('../prisma/prismaClient');
 
 // ====================
 // 🔐 Twilio Credentials

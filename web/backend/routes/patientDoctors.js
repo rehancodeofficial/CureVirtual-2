@@ -2,9 +2,8 @@
 
 const express = require("express");
 const router = express.Router();
-const { PrismaClient } = require("@prisma/client");
+const prisma = require('../prisma/prismaClient');
 const { verifyToken, requireRole, verifyOwnerOrAdmin } = require("../middleware/rbac.js");
-const prisma = new PrismaClient();
 
 /** Helpers */
 async function getPatientProfileByUserId(patientUserId) {

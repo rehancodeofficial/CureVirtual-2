@@ -1,9 +1,8 @@
 // FILE: backend/routes/scheduleRoutes.js
 const express = require("express");
-const { PrismaClient } = require("@prisma/client");
+const prisma = require('../prisma/prismaClient');
 const { verifyToken, requireRole } = require("../middleware/rbac.js");
 
-const prisma = new PrismaClient();
 const router = express.Router();
 
 // Apply RBAC to all schedule routes

@@ -1,7 +1,5 @@
 const express = require("express");
-const { PrismaClient } = require("@prisma/client");
-
-const prisma = new PrismaClient();
+const prisma = require('../prisma/prismaClient');
 const router = express.Router();
 
 // ✅ Fetch logs (with optional role filter, pagination)

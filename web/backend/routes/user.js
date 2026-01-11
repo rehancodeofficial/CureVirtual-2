@@ -1,8 +1,7 @@
 // FILE: backend/routes/user.js
 const express = require('express');
 const router = express.Router();
-const { PrismaClient } = require('@prisma/client');
-const prisma = new PrismaClient();
+const prisma = require('../prisma/prismaClient');
 const { verifyToken } = require('../middleware/rbac');
 
 // GET /api/users/:id

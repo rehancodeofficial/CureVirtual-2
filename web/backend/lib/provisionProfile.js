@@ -1,6 +1,5 @@
 // FILE: backend/lib/provisionProfile.js
-const { PrismaClient } = require('@prisma/client');
-const prisma = new PrismaClient();
+const prisma = require('../prisma/prismaClient');
 
 /**
  * Ensure a profile exists for the user; create a sensible default if missing.

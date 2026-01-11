@@ -1,9 +1,8 @@
 // FILE: backend/routes/adminUsers.js
 
 const express = require("express");
-const { PrismaClient } = require("@prisma/client");
 const { verifyToken, requireRole } = require("../middleware/rbac.js");
-const prisma = new PrismaClient();
+const prisma = require('../prisma/prismaClient');
 const router = express.Router();
 
 // ✅ Utility: Add to activity log

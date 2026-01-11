@@ -1,8 +1,7 @@
 const express = require("express");
-const { PrismaClient } = require("@prisma/client");
 const { verifyToken, requireHierarchy } = require("../middleware/rbac.js");
 const router = express.Router();
-const prisma = new PrismaClient();
+const prisma = require('../prisma/prismaClient');
 
 // Apply RBAC to all routes in this file
 router.use(verifyToken);

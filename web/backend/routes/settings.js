@@ -1,9 +1,8 @@
 const express = require("express");
-const { PrismaClient } = require("@prisma/client");
+const prisma = require('../prisma/prismaClient');
 const xss = require("xss");
 const { verifyToken, requireRole } = require("../middleware/rbac");
 
-const prisma = new PrismaClient();
 const router = express.Router();
 
 // ✅ Apply verification (Superadmin only for settings)

@@ -1,9 +1,8 @@
 //here is the current Backend. update and give me full updated clean version
 // FILE: backend/routes/support.js
 const express = require("express");
-const { PrismaClient } = require("@prisma/client");
+const prisma = require('../prisma/prismaClient');
 const router = express.Router();
-const prisma = new PrismaClient();
 
 /**
  * Helpers
