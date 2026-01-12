@@ -37,6 +37,9 @@ const PUBLIC_TO_PRISMA_BG = {
   UNKNOWN: 'UNKNOWN',
 };
 
+const HEIGHT_UNITS = ['cm', 'ft/in'];
+const WEIGHT_UNITS = ['kg', 'lbs'];
+
 function normalizeIncomingBloodGroup(value) {
   if (!value) return 'UNKNOWN';
   if (PRISMA_TO_PUBLIC_BG[value]) return PRISMA_TO_PUBLIC_BG[value];
@@ -63,12 +66,16 @@ export default function PatientProfile() {
     gender: 'OTHER',
     bloodGroup: 'UNKNOWN',
     height: '',
+    heightUnit: 'cm', // Default
     weight: '',
+    weightUnit: 'kg', // Default
     allergies: '',
     medications: '',
     medicalHistory: '',
     address: '',
     emergencyContact: '',
+    emergencyContactName: '',
+    emergencyContactEmail: '',
     medicalRecordNumber: '',
     insuranceProvider: '',
     insuranceMemberId: '',
@@ -87,12 +94,16 @@ export default function PatientProfile() {
           gender: p.gender || 'OTHER',
           bloodGroup: normalizeIncomingBloodGroup(p.bloodGroup),
           height: p.height ?? '',
+          heightUnit: p.heightUnit || 'cm',
           weight: p.weight ?? '',
+          weightUnit: p.weightUnit || 'kg',
           allergies: p.allergies || '',
           medications: p.medications || '',
           medicalHistory: p.medicalHistory || '',
           address: p.address || '',
           emergencyContact: p.emergencyContact || '',
+          emergencyContactName: p.emergencyContactName || '',
+          emergencyContactEmail: p.emergencyContactEmail || '',
           medicalRecordNumber: p.medicalRecordNumber || '',
           insuranceProvider: p.insuranceProvider || '',
           insuranceMemberId: p.insuranceMemberId || '',
@@ -118,7 +129,9 @@ export default function PatientProfile() {
         ...form,
         bloodGroup: toPrismaBloodGroup(form.bloodGroup),
         height: form.height === '' ? null : Number(form.height),
+        heightUnit: form.heightUnit,
         weight: form.weight === '' ? null : Number(form.weight),
+        weightUnit: form.weightUnit,
         dateOfBirth: form.dateOfBirth
           ? new Date(form.dateOfBirth).toISOString()
           : null,
@@ -214,31 +227,51 @@ export default function PatientProfile() {
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-1.5">
                   <label className="text-[10px] font-black uppercase tracking-widest text-[var(--text-muted)] ml-1">
-                    Height (cm)
+                    Height
                   </label>
-                  <input
-                    type="number"
-                    className="w-full bg-[var(--bg-main)] border border-[var(--border)] rounded-2xl py-3.5 px-4 text-xs font-bold focus:border-[var(--brand-green)] outline-none"
-                    value={form.height}
-                    onChange={(e) =>
-                      setForm({ ...form, height: e.target.value })
-                    }
-                    placeholder="175"
-                  />
+                  <div className="flex gap-2">
+                    <input
+                      type="number"
+                      className="w-full bg-[var(--bg-main)] border border-[var(--border)] rounded-l-2xl py-3.5 px-4 text-xs font-bold focus:border-[var(--brand-green)] outline-none"
+                      value={form.height}
+                      onChange={(e) =>
+                        setForm({ ...form, height: e.target.value })
+                      }
+                      placeholder={form.heightUnit === 'cm' ? "175" : "5.9"}
+                      step="0.01"
+                    />
+                    <select
+                      className="bg-[var(--bg-main)] border border-[var(--border)] border-l-0 rounded-r-2xl px-2 text-xs font-bold focus:border-[var(--brand-green)] outline-none"
+                      value={form.heightUnit}
+                      onChange={(e) => setForm({ ...form, heightUnit: e.target.value })}
+                    >
+                      {HEIGHT_UNITS.map(u => <option key={u} value={u}>{u}</option>)}
+                    </select>
+                  </div>
                 </div>
                 <div className="space-y-1.5">
                   <label className="text-[10px] font-black uppercase tracking-widest text-[var(--text-muted)] ml-1">
-                    Weight (kg)
+                    Weight
                   </label>
-                  <input
-                    type="number"
-                    className="w-full bg-[var(--bg-main)] border border-[var(--border)] rounded-2xl py-3.5 px-4 text-xs font-bold focus:border-[var(--brand-green)] outline-none"
-                    value={form.weight}
-                    onChange={(e) =>
-                      setForm({ ...form, weight: e.target.value })
-                    }
-                    placeholder="70"
-                  />
+                  <div className="flex gap-2">
+                    <input
+                      type="number"
+                      className="w-full bg-[var(--bg-main)] border border-[var(--border)] rounded-l-2xl py-3.5 px-4 text-xs font-bold focus:border-[var(--brand-green)] outline-none"
+                      value={form.weight}
+                      onChange={(e) =>
+                        setForm({ ...form, weight: e.target.value })
+                      }
+                      placeholder={form.weightUnit === 'kg' ? "70" : "154"}
+                      step="0.01"
+                    />
+                    <select
+                      className="bg-[var(--bg-main)] border border-[var(--border)] border-l-0 rounded-r-2xl px-2 text-xs font-bold focus:border-[var(--brand-green)] outline-none"
+                      value={form.weightUnit}
+                      onChange={(e) => setForm({ ...form, weightUnit: e.target.value })}
+                    >
+                      {WEIGHT_UNITS.map(u => <option key={u} value={u}>{u}</option>)}
+                    </select>
+                  </div>
                 </div>
               </div>
 
@@ -285,19 +318,52 @@ export default function PatientProfile() {
                 />
               </div>
 
-              <div className="md:col-span-2 space-y-1.5">
-                <label className="text-[10px] font-black uppercase tracking-widest text-[var(--text-muted)] ml-1">
-                  Emergency Contact
-                </label>
-                <input
-                  type="text"
-                  className="w-full bg-[var(--bg-main)] border border-[var(--border)] rounded-2xl py-3.5 px-4 text-xs font-bold focus:border-[var(--brand-green)] outline-none"
-                  value={form.emergencyContact}
-                  onChange={(e) =>
-                    setForm({ ...form, emergencyContact: e.target.value })
-                  }
-                  placeholder="Name - Relationship - Phone"
-                />
+              <div className="md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="md:col-span-2">
+                    <h3 className="text-sm font-bold text-[var(--brand-green)] uppercase tracking-wider mb-2 mt-4">Emergency Contact</h3>
+                  </div>
+                  <div className="space-y-1.5">
+                    <label className="text-[10px] font-black uppercase tracking-widest text-[var(--text-muted)] ml-1">
+                      Full Name
+                    </label>
+                    <input
+                      type="text"
+                      className="w-full bg-[var(--bg-main)] border border-[var(--border)] rounded-2xl py-3.5 px-4 text-xs font-bold focus:border-[var(--brand-green)] outline-none"
+                      value={form.emergencyContactName}
+                      onChange={(e) =>
+                        setForm({ ...form, emergencyContactName: e.target.value })
+                      }
+                      placeholder="Jane Doe"
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <label className="text-[10px] font-black uppercase tracking-widest text-[var(--text-muted)] ml-1">
+                      Email Address
+                    </label>
+                    <input
+                      type="email"
+                      className="w-full bg-[var(--bg-main)] border border-[var(--border)] rounded-2xl py-3.5 px-4 text-xs font-bold focus:border-[var(--brand-green)] outline-none"
+                      value={form.emergencyContactEmail}
+                      onChange={(e) =>
+                        setForm({ ...form, emergencyContactEmail: e.target.value })
+                      }
+                      placeholder="emergency@example.com"
+                    />
+                  </div>
+                  <div className="md:col-span-2 space-y-1.5">
+                    <label className="text-[10px] font-black uppercase tracking-widest text-[var(--text-muted)] ml-1">
+                      Additional Details (Relation, Phone, etc.)
+                    </label>
+                    <input
+                      type="text"
+                      className="w-full bg-[var(--bg-main)] border border-[var(--border)] rounded-2xl py-3.5 px-4 text-xs font-bold focus:border-[var(--brand-green)] outline-none"
+                      value={form.emergencyContact}
+                      onChange={(e) =>
+                        setForm({ ...form, emergencyContact: e.target.value })
+                      }
+                      placeholder="Mother - +1 555-0123"
+                    />
+                  </div>
               </div>
 
               <div className="space-y-1.5">
