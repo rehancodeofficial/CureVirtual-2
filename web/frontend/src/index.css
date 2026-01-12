@@ -67,7 +67,7 @@ body {
 }
 
 .btn::after {
-  content: '';
+  content: "";
   @apply absolute inset-0 bg-white/20 opacity-0 transition-opacity;
 }
 
@@ -127,4 +127,110 @@ body {
 
 .page-container {
   @apply max-w-7xl mx-auto px-6 w-full;
+}
+
+/* ==========================================
+   📱 MOBILE-FIRST RESPONSIVE OPTIMIZATIONS
+   ========================================== */
+
+/* Reduced motion for users who prefer it */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Mobile optimizations */
+@media (max-width: 768px) {
+  /* Smaller base font for mobile */
+  html {
+    font-size: 15px;
+  }
+
+  /* Optimize page container for mobile */
+  .page-container {
+    @apply px-4;
+  }
+
+  /* Reduce button padding on mobile while maintaining touch targets */
+  .btn {
+    @apply px-6 py-3 text-[11px] min-h-[44px] min-w-[44px];
+  }
+
+  /* Smaller cards on mobile */
+  .card {
+    @apply p-6 rounded-[2rem];
+  }
+
+  .glass {
+    @apply p-6 rounded-[2rem];
+  }
+
+  /* Disable floating animation on mobile for better performance */
+  .animate-float {
+    animation: none;
+  }
+
+  /* Optimize text gradient for mobile */
+  .text-gradient {
+    background-size: 100%;
+  }
+}
+
+/* Very small devices (< 640px) */
+@media (max-width: 640px) {
+  html {
+    font-size: 14px;
+  }
+
+  .page-container {
+    @apply px-3;
+  }
+
+  .btn {
+    @apply px-5 py-2.5 text-[10px];
+  }
+
+  .card {
+    @apply p-5 rounded-[1.5rem];
+  }
+
+  .glass {
+    @apply p-5 rounded-[1.5rem];
+  }
+}
+
+/* Touch-friendly utilities */
+.touch-target {
+  @apply min-h-[44px] min-w-[44px];
+}
+
+.touch-target-lg {
+  @apply min-h-[48px] min-w-[48px];
+}
+
+/* Mobile-specific utilities */
+.mobile-hidden {
+  @apply hidden md:block;
+}
+
+.mobile-only {
+  @apply block md:hidden;
+}
+
+/* Better spacing for mobile */
+.mobile-spacing {
+  @apply space-y-4 md:space-y-6 lg:space-y-8;
+}
+
+/* iOS safe area support */
+@supports (padding: max(0px)) {
+  body {
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
+  }
 }
