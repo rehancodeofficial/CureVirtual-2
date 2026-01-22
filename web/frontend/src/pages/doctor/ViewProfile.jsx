@@ -50,7 +50,7 @@ export default function DoctorViewProfile() {
       setLoading(true);
       const res = await api.get('/doctor/profile', { params: { userId } });
       setProfile(res.data?.data || null);
-    } catch (err) {
+    } catch {
       toast.error('Profile Registry Failure: Data not found.');
     } finally {
       setLoading(false);
@@ -174,7 +174,7 @@ export default function DoctorViewProfile() {
                     {profile.qualifications || 'No academic data available.'}
                   </p>
                   <div className="pt-4 border-t border-[var(--border)]">
-                    <p className="text-[10px] font-black text-[var(--text-muted)] uppercase tracking-widest mb-2 font-black">
+                    <p className="text-[10px] font-black text-[var(--text-muted)] uppercase tracking-widest mb-2">
                       Consultation Fee
                     </p>
                     <p className="text-2xl font-black text-[var(--brand-green)]">
@@ -192,7 +192,7 @@ export default function DoctorViewProfile() {
                     {profile.hospitalAffiliation || 'Independent Practitioner'}
                   </p>
                   <div className="pt-4 border-t border-[var(--border)]">
-                    <p className="text-[10px] font-black text-[var(--text-muted)] uppercase tracking-widest mb-2 font-black">
+                    <p className="text-[10px] font-black text-[var(--text-muted)] uppercase tracking-widest mb-2">
                       Availability Window
                     </p>
                     <p className="text-xs font-bold text-[var(--text-main)] whitespace-pre-wrap">
