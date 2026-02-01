@@ -36,43 +36,45 @@ const BookAppointment = () => {
         setLoadingDoctors(false);
       }
     };
-    
+
     fetchDoctors();
   }, []);
 
   // Fetch available slots when doctor and date are selected
   useEffect(() => {
+    const fetchAvailableSlots = async () => {
+      try {
+        setLoadingSlots(true);
+        const date = formData.appointmentDate.split("T")[0]; // Get YYYY-MM-DD
+        const res = await api.get(
+          `/api/schedule/available-slots/${formData.doctorId}?date=${date}`
+        );
+
+        if (res.data.success) {
+          setAvailableSlots(res.data.data || []);
+          if (res.data.data.length === 0) {
+            toast.info(res.data.message || "No available slots for this date");
+          }
+        }
+      } catch (err) {
+        console.error("❌ Error loading slots:", err);
+        toast.error("Failed to load available time slots");
+        setAvailableSlots([]);
+      } finally {
+        setLoadingSlots(false);
+      }
+    };
+
     if (formData.doctorId && formData.appointmentDate) {
       fetchAvailableSlots();
     } else {
       setAvailableSlots([]);
-      setFormData(prev => ({ ...prev, selectedSlot: "" }));
+      setFormData((prev) => ({ ...prev, selectedSlot: "" }));
     }
   }, [formData.doctorId, formData.appointmentDate]);
 
-  const fetchAvailableSlots = async () => {
-    try {
-      setLoadingSlots(true);
-      const date = formData.appointmentDate.split("T")[0]; // Get YYYY-MM-DD
-      const res = await api.get(`/api/schedule/available-slots/${formData.doctorId}?date=${date}`);
-      
-      if (res.data.success) {
-        setAvailableSlots(res.data.data || []);
-        if (res.data.data.length === 0) {
-          toast.info(res.data.message || "No available slots for this date");
-        }
-      }
-    } catch (err) {
-      console.error("❌ Error loading slots:", err);
-      toast.error("Failed to load available time slots");
-      setAvailableSlots([]);
-    } finally {
-      setLoadingSlots(false);
-    }
-  };
-
   const handleDoctorChange = (doctorId) => {
-    const doctor = doctors.find(d => d.id === doctorId);
+    const doctor = doctors.find((d) => d.id === doctorId);
     setSelectedDoctor(doctor);
     setFormData({
       ...formData,
@@ -117,10 +119,7 @@ const BookAppointment = () => {
       <div className="flex-1 flex flex-col">
         <Topbar userName={userName} />
 
-        <div
-          className="flex-1 p-6"
-          
-        >
+        <div className="flex-1 p-6">
           <h1 className="text-3xl font-bold text-[var(--text-main)] mb-6 tracking-wide">
             Book Appointment
           </h1>
@@ -142,19 +141,18 @@ const BookAppointment = () => {
                   <option value="">
                     {loadingDoctors ? "Loading doctors..." : "Select a doctor"}
                   </option>
-                  {doctors.length > 0 ? (
-                    doctors.map((doc) => (
-                      <option
-                        key={doc.id}
-                        value={doc.id}
-                        className="bg-[var(--bg-card)] text-[var(--text-main)]"
-                      >
-                        {doc.user?.firstName} {doc.user?.lastName} — {doc.specialization || "General Medicine"}
-                      </option>
-                    ))
-                  ) : (
-                    !loadingDoctors && <option disabled>No doctors available</option>
-                  )}
+                  {doctors.length > 0
+                    ? doctors.map((doc) => (
+                        <option
+                          key={doc.id}
+                          value={doc.id}
+                          className="bg-[var(--bg-card)] text-[var(--text-main)]"
+                        >
+                          {doc.user?.firstName} {doc.user?.lastName} —{" "}
+                          {doc.specialization || "General Medicine"}
+                        </option>
+                      ))
+                    : !loadingDoctors && <option disabled>No doctors available</option>}
                 </select>
               </div>
 
@@ -168,7 +166,11 @@ const BookAppointment = () => {
                     type="date"
                     value={formData.appointmentDate.split("T")[0] || ""}
                     onChange={(e) =>
-                      setFormData({ ...formData, appointmentDate: e.target.value, selectedSlot: "" })
+                      setFormData({
+                        ...formData,
+                        appointmentDate: e.target.value,
+                        selectedSlot: "",
+                      })
                     }
                     min={new Date().toISOString().split("T")[0]}
                     className="w-full bg-transparent border border-[var(--border)] rounded-lg p-3 text-[var(--text-main)] focus:ring-2 focus:ring-blue-500"
@@ -220,9 +222,7 @@ const BookAppointment = () => {
                   </label>
                   <textarea
                     value={formData.reason}
-                    onChange={(e) =>
-                      setFormData({ ...formData, reason: e.target.value })
-                    }
+                    onChange={(e) => setFormData({ ...formData, reason: e.target.value })}
                     rows="3"
                     placeholder="Briefly describe your reason..."
                     className="w-full bg-transparent border border-[var(--border)] rounded-lg p-3 text-[var(--text-main)] focus:ring-2 focus:ring-blue-500"
@@ -249,7 +249,8 @@ const BookAppointment = () => {
               <div className="mt-6 p-4 bg-blue-500/10 border border-blue-500/30 rounded-lg">
                 <h3 className="font-semibold text-blue-400 mb-2">Selected Doctor</h3>
                 <p className="text-[var(--text-soft)]">
-                  <strong>Name:</strong> {selectedDoctor.user?.firstName} {selectedDoctor.user?.lastName}
+                  <strong>Name:</strong> {selectedDoctor.user?.firstName}{" "}
+                  {selectedDoctor.user?.lastName}
                 </p>
                 <p className="text-[var(--text-soft)]">
                   <strong>Specialization:</strong> {selectedDoctor.specialization}
@@ -267,4 +268,3 @@ const BookAppointment = () => {
 };
 
 export default BookAppointment;
-
