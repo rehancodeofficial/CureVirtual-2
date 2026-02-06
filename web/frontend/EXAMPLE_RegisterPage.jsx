@@ -1,31 +1,32 @@
 // EXAMPLE: Complete Registration Page with OTP Verification
 // FILE: frontend/src/pages/RegisterPage.jsx (EXAMPLE - DO NOT OVERWRITE EXISTING)
 
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
-import { toast } from 'react-toastify';
-import OTPVerification from '../components/OTPVerification';
-import './RegisterPage.css';
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import axios from "axios";
+import { toast } from "react-toastify";
+import OTPVerification from "../components/OTPVerification";
+import "./RegisterPage.css";
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5001/api';
+const API_BASE_URL =
+  import.meta.env.VITE_API_BASE_URL || "https://curevirtual-2-production-2656.up.railway.app/api";
 
 const RegisterPage = () => {
   const navigate = useNavigate();
-  
+
   // Form state
   const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    password: '',
-    confirmPassword: '',
-    role: 'PATIENT',
+    name: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
+    role: "PATIENT",
   });
-  
+
   // UI state
   const [loading, setLoading] = useState(false);
   const [showOTP, setShowOTP] = useState(false);
-  const [registeredEmail, setRegisteredEmail] = useState('');
+  const [registeredEmail, setRegisteredEmail] = useState("");
 
   // Handle input changes
   const handleChange = (e) => {
@@ -41,17 +42,17 @@ const RegisterPage = () => {
 
     // Validation
     if (!formData.name || !formData.email || !formData.password) {
-      toast.error('Please fill in all fields');
+      toast.error("Please fill in all fields");
       return;
     }
 
     if (formData.password !== formData.confirmPassword) {
-      toast.error('Passwords do not match');
+      toast.error("Passwords do not match");
       return;
     }
 
     if (formData.password.length < 6) {
-      toast.error('Password must be at least 6 characters');
+      toast.error("Password must be at least 6 characters");
       return;
     }
 
@@ -73,10 +74,10 @@ const RegisterPage = () => {
         setShowOTP(true);
       } else {
         // Redirect to login if no verification needed
-        navigate('/login');
+        navigate("/login");
       }
     } catch (error) {
-      const errorMsg = error.response?.data?.error || 'Registration failed';
+      const errorMsg = error.response?.data?.error || "Registration failed";
       toast.error(errorMsg);
     } finally {
       setLoading(false);
@@ -85,8 +86,8 @@ const RegisterPage = () => {
 
   // Handle successful OTP verification
   const handleVerified = () => {
-    toast.success('Email verified successfully! You can now log in.');
-    navigate('/login');
+    toast.success("Email verified successfully! You can now log in.");
+    navigate("/login");
   };
 
   // Handle back from OTP screen
@@ -141,12 +142,7 @@ const RegisterPage = () => {
 
           <div className="form-group">
             <label htmlFor="role">I am a...</label>
-            <select
-              id="role"
-              name="role"
-              value={formData.role}
-              onChange={handleChange}
-            >
+            <select id="role" name="role" value={formData.role} onChange={handleChange}>
               <option value="PATIENT">Patient</option>
               <option value="DOCTOR">Doctor</option>
               <option value="PHARMACY">Pharmacy</option>
@@ -179,18 +175,13 @@ const RegisterPage = () => {
             />
           </div>
 
-          <button
-            type="submit"
-            className="btn-register"
-            disabled={loading}
-          >
-            {loading ? 'Creating Account...' : 'Register'}
+          <button type="submit" className="btn-register" disabled={loading}>
+            {loading ? "Creating Account..." : "Register"}
           </button>
         </form>
 
         <p className="login-link">
-          Already have an account?{' '}
-          <a href="/login">Log in</a>
+          Already have an account? <a href="/login">Log in</a>
         </p>
       </div>
     </div>
