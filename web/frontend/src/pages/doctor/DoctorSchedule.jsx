@@ -115,10 +115,7 @@ const DoctorSchedule = () => {
       <div className="flex-1 flex flex-col">
         <Topbar userName={userName} />
 
-        <div
-          className="flex-1 p-6"
-          
-        >
+        <div className="flex-1 p-6">
           <h1 className="text-3xl font-bold text-[var(--text-main)] mb-6 tracking-wide">
             My Schedule
           </h1>
@@ -168,23 +165,21 @@ const DoctorSchedule = () => {
                 />
               </div>
 
-              <div className="flex items-end gap-2">
+              <button
+                type="submit"
+                className="flex-1 bg-green-700 hover:bg-green-300 text-[var(--text-main)] py-3 rounded-lg font-semibold transition"
+              >
+                {editingId ? "Update" : "Add"}
+              </button>
+              {editingId && (
                 <button
-                  type="submit"
-                  className="flex-1 bg-blue-700 hover:bg-blue-800 text-[var(--text-main)] py-3 rounded-lg font-semibold transition"
+                  type="button"
+                  onClick={cancelEdit}
+                  className="px-4 py-3 bg-gray-600 hover:bg-gray-700 text-[var(--text-main)] rounded-lg font-semibold transition"
                 >
-                  {editingId ? "Update" : "Add"}
+                  Cancel
                 </button>
-                {editingId && (
-                  <button
-                    type="button"
-                    onClick={cancelEdit}
-                    className="px-4 py-3 bg-gray-600 hover:bg-gray-700 text-[var(--text-main)] rounded-lg font-semibold transition"
-                  >
-                    Cancel
-                  </button>
-                )}
-              </div>
+              )}
             </form>
           </div>
 
@@ -196,73 +191,69 @@ const DoctorSchedule = () => {
               <p className="text-[var(--text-muted)]">Loading schedules...</p>
             ) : schedules.length === 0 ? (
               <p className="text-[var(--text-muted)]">
-                No schedules set. Add your availability above to allow patients to book appointments.
+                No schedules set. Add your availability above to allow patients to book
+                appointments.
               </p>
             ) : (
-              <div className="overflow-x-auto">
-                <table className="w-full border-collapse">
-                  <thead>
-                    <tr className="border-b border-[var(--border)] text-[var(--text-soft)] uppercase text-sm">
-                      <th className="p-3 text-left">Day</th>
-                      <th className="p-3 text-left">Start Time</th>
-                      <th className="p-3 text-left">End Time</th>
-                      <th className="p-3 text-left">Status</th>
-                      <th className="p-3 text-left">Actions</th>
+              <table className="w-full border-collapse">
+                <thead>
+                  <tr className="border-b border-[var(--border)] text-[var(--text-soft)] uppercase text-sm">
+                    <th className="p-3 text-left w-16">⋮</th>
+                    <th className="p-3 text-left">Day</th>
+                    <th className="p-3 text-left">Start Time</th>
+                    <th className="p-3 text-left">End Time</th>
+                    <th className="p-3 text-left">Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {schedules.map((schedule) => (
+                    <tr
+                      key={schedule.id}
+                      className="border-b border-[var(--border)] hover:bg-[var(--bg-glass)] transition"
+                    >
+                      <td className="p-3">
+                        <select
+                          onChange={(e) => {
+                            const action = e.target.value;
+                            if (action === "edit") {
+                              handleEdit(schedule);
+                            } else if (action === "toggle") {
+                              toggleActive(schedule);
+                            } else if (action === "delete") {
+                              handleDelete(schedule.id);
+                            }
+                            e.target.value = ""; // Reset dropdown
+                          }}
+                          className="bg-transparent border-0 text-lg text-[var(--text-main)] cursor-pointer focus:outline-none hover:text-blue-500"
+                        >
+                          <option value="">⋮</option>
+                          <option value="edit">✏️ Edit</option>
+                          <option value="toggle">
+                            {schedule.isActive ? "⏸️ Deactivate" : "▶️ Activate"}
+                          </option>
+                          <option value="delete">🗑️ Delete</option>
+                        </select>
+                      </td>
+                      <td className="p-3">
+                        <span className="font-semibold">{DAYS[schedule.dayOfWeek]}</span>
+                      </td>
+                      <td className="p-3">{schedule.startTime}</td>
+                      <td className="p-3">{schedule.endTime}</td>
+                      <td className="p-3">
+                        <span
+                          className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                            schedule.isActive
+                              ? "bg-green-500/20 text-green-400"
+                              : "bg-red-500/20 text-red-400"
+                          }`}
+                        >
+                          {schedule.isActive ? "Active" : "Inactive"}
+                        </span>
+                      </td>
                     </tr>
-                  </thead>
-                  <tbody>
-                    {schedules.map((schedule) => (
-                      <tr
-                        key={schedule.id}
-                        className="border-b border-[var(--border)] hover:bg-[var(--bg-glass)] transition"
-                      >
-                        <td className="p-3">
-                          <span className="font-semibold">{DAYS[schedule.dayOfWeek]}</span>
-                        </td>
-                        <td className="p-3">{schedule.startTime}</td>
-                        <td className="p-3">{schedule.endTime}</td>
-                        <td className="p-3">
-                          <span
-                            className={`px-3 py-1 rounded-full text-xs font-semibold ${
-                              schedule.isActive
-                                ? "bg-green-500/20 text-green-400"
-                                : "bg-red-500/20 text-red-400"
-                            }`}
-                          >
-                            {schedule.isActive ? "Active" : "Inactive"}
-                          </span>
-                        </td>
-                        <td className="p-3">
-                          <div className="flex gap-2">
-                            <button
-                              onClick={() => handleEdit(schedule)}
-                              className="px-3 py-1 bg-blue-600 hover:bg-blue-700 rounded text-sm transition"
-                            >
-                              Edit
-                            </button>
-                            <button
-                              onClick={() => toggleActive(schedule)}
-                              className={`px-3 py-1 rounded text-sm transition ${
-                                schedule.isActive
-                                  ? "bg-yellow-600 hover:bg-yellow-700"
-                                  : "bg-green-600 hover:bg-green-700"
-                              }`}
-                            >
-                              {schedule.isActive ? "Deactivate" : "Activate"}
-                            </button>
-                            <button
-                              onClick={() => handleDelete(schedule.id)}
-                              className="px-3 py-1 bg-red-600 hover:bg-red-700 rounded text-sm transition"
-                            >
-                              Delete
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+                  ))}
+                </tbody>
+              </table>
             )}
           </div>
 
@@ -271,9 +262,7 @@ const DoctorSchedule = () => {
             <h2 className="text-xl font-semibold text-[var(--text-main)] mb-4">Weekly Overview</h2>
             <div className="grid grid-cols-1 md:grid-cols-7 gap-3">
               {DAYS.map((day, idx) => {
-                const daySchedules = schedules.filter(
-                  (s) => s.dayOfWeek === idx && s.isActive
-                );
+                const daySchedules = schedules.filter((s) => s.dayOfWeek === idx && s.isActive);
                 return (
                   <div
                     key={idx}
