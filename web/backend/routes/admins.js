@@ -25,52 +25,62 @@ router.get("/", requireRole("SUPERADMIN"), async (req, res) => {
   try {
     const { role } = req.query;
 
-    const admins = await prisma.admin.findMany({
+    const admins = await prisma.user.findMany({
       where: {
-        // Filter by role if provided, otherwise include all EXCEPT SUPERADMIN
         AND: [
-          role ? { role } : {},
-          { role: { not: "SUPERADMIN" } }, // 🚫 exclude superadmin
+          role ? { role } : { role: { in: ["ADMIN", "SUPPORT"] } },
+          { role: { not: "SUPERADMIN" } },
         ],
+      },
+      select: {
+        id: true,
+        firstName: true,
+        lastName: true,
+        email: true,
+        role: true,
+        createdAt: true,
+        updatedAt: true,
       },
       orderBy: { createdAt: "desc" },
     });
 
-    res.json(admins);
+    const formattedAdmins = admins.map((a) => ({
+      ...a,
+      name: `${a.firstName} ${a.lastName}`.trim(),
+    }));
+
+    res.json(formattedAdmins);
   } catch (err) {
     console.error("Error fetching admins:", err);
     res.status(500).json({ error: "Failed to fetch admins" });
   }
 });
 
-// router.get("/", async (req, res) => {
-//   try {
-//     const { role } = req.query;
-//     const admins = await prisma.admin.findMany({
-//       where: role ? { role } : {},
-//       orderBy: { createdAt: "desc" },
-//     });
-//     res.json(admins);
-//   } catch (err) {
-//     console.error("Error fetching admins:", err);
-//     res.status(500).json({ error: "Failed to fetch admins" });
-//   }
-// });
-
 // ✅ Create new admin
 router.post("/", requireRole("SUPERADMIN"), async (req, res) => {
   try {
     const { name, email, role } = req.body;
-    const admin = await prisma.admin.create({
+    const [firstName, ...lastNameParts] = name.split(" ");
+    const lastName = lastNameParts.join(" ") || "Admin";
+
+    const admin = await prisma.user.create({
       data: {
-        name: xss(name),
+        firstName: xss(firstName),
+        lastName: xss(lastName),
         email: xss(email),
         password: "123456", // ❗ hash in production
         role,
+        dateOfBirth: new Date("1970-01-01"),
+        gender: "PREFER_NOT_TO_SAY",
       },
     });
 
-    await addLog(req.user?.id || null, req.user?.role || "SYSTEM", "Created Admin", `Admin: ${name}`);
+    await addLog(
+      req.user?.id || null,
+      req.user?.role || "SYSTEM",
+      "Created Admin",
+      `Admin: ${name}`,
+    );
     res.json(admin);
   } catch (err) {
     console.error("Error creating admin:", err);
@@ -82,12 +92,25 @@ router.post("/", requireRole("SUPERADMIN"), async (req, res) => {
 router.put("/:id", requireRole("SUPERADMIN"), async (req, res) => {
   try {
     const { name, email, role } = req.body;
-    const admin = await prisma.admin.update({
-      where: { id: parseInt(req.params.id) },
-      data: { name: xss(name), email: xss(email), role },
+    const [firstName, ...lastNameParts] = name.split(" ");
+    const lastName = lastNameParts.join(" ") || "";
+
+    const admin = await prisma.user.update({
+      where: { id: req.params.id },
+      data: {
+        firstName: xss(firstName),
+        lastName: xss(lastName),
+        email: xss(email),
+        role,
+      },
     });
 
-    await addLog(req.user?.id || null, req.user?.role || "SYSTEM", "Edited Admin", `Admin: ${name}`);
+    await addLog(
+      req.user?.id || null,
+      req.user?.role || "SYSTEM",
+      "Edited Admin",
+      `Admin: ${name}`,
+    );
     res.json(admin);
   } catch (err) {
     console.error("Error editing admin:", err);
@@ -98,12 +121,19 @@ router.put("/:id", requireRole("SUPERADMIN"), async (req, res) => {
 // ✅ Suspend admin
 router.patch("/:id/suspend", requireRole("SUPERADMIN"), async (req, res) => {
   try {
-    const admin = await prisma.admin.update({
-      where: { id: parseInt(req.params.id) },
-      data: { isSuspended: true },
+    const admin = await prisma.user.update({
+      where: { id: req.params.id },
+      data: {
+        // User table doesn't have isSuspended yet
+      },
     });
 
-    await addLog(req.user?.id || null, req.user?.role || "SYSTEM", "Suspended Admin", `Admin: ${admin.name}`);
+    await addLog(
+      req.user?.id || null,
+      req.user?.role || "SYSTEM",
+      "Suspended Admin",
+      `Admin: ${admin.name}`,
+    );
     res.json(admin);
   } catch (err) {
     console.error("Error suspending admin:", err);
@@ -114,18 +144,22 @@ router.patch("/:id/suspend", requireRole("SUPERADMIN"), async (req, res) => {
 // ✅ Delete admin
 router.delete("/:id", requireRole("SUPERADMIN"), async (req, res) => {
   try {
-    const admin = await prisma.admin.delete({
-      where: { id: parseInt(req.params.id) },
+    const admin = await prisma.user.delete({
+      where: { id: req.params.id },
     });
 
-    await addLog(req.user?.id || null, req.user?.role || "SYSTEM", "Deleted Admin", `Admin: ${admin.name}`);
+    await addLog(
+      req.user?.id || null,
+      req.user?.role || "SYSTEM",
+      "Deleted Admin",
+      `Admin: ${admin.name}`,
+    );
     res.json({ message: "Admin deleted successfully" });
   } catch (err) {
     console.error("Error deleting admin:", err);
     res.status(500).json({ error: "Failed to delete admin" });
   }
 });
-
 
 /**
  * ✅ Get all appointments (admin view)
@@ -136,10 +170,14 @@ router.get("/appointments", async (_req, res) => {
     const appointments = await prisma.appointment.findMany({
       include: {
         doctor: {
-          include: { user: { select: { firstName: true, lastName: true, email: true } } },
+          include: {
+            user: { select: { firstName: true, lastName: true, email: true } },
+          },
         },
         patient: {
-          include: { user: { select: { firstName: true, lastName: true, email: true } } },
+          include: {
+            user: { select: { firstName: true, lastName: true, email: true } },
+          },
         },
       },
       orderBy: { appointmentDate: "desc" },
@@ -181,7 +219,8 @@ router.get("/users", async (req, res) => {
       where: role ? { role } : undefined,
       select: {
         id: true,
-        firstName: true, lastName: true,
+        firstName: true,
+        lastName: true,
         email: true,
         role: true,
       },
@@ -193,6 +232,5 @@ router.get("/users", async (req, res) => {
     res.status(500).json({ error: "Failed to fetch users" });
   }
 });
-
 
 module.exports = router;

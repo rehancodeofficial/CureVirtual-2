@@ -30,17 +30,18 @@ router.get("/users", async (req, res) => {
         where,
         select: {
           id: true,
-          firstName: true, lastName: true,
+          firstName: true,
+          lastName: true,
           email: true,
           role: true,
           createdAt: true,
-          updatedAt: true
+          updatedAt: true,
         },
         skip,
         take: limit,
-        orderBy: { createdAt: "desc" }
+        orderBy: { createdAt: "desc" },
       }),
-      prisma.user.count({ where })
+      prisma.user.count({ where }),
     ]);
 
     res.json({
@@ -49,8 +50,8 @@ router.get("/users", async (req, res) => {
         page,
         limit,
         total,
-        pages: Math.ceil(total / limit)
-      }
+        pages: Math.ceil(total / limit),
+      },
     });
   } catch (err) {
     console.error("Failed to fetch users:", err);
@@ -69,8 +70,8 @@ router.get("/user/:id", async (req, res) => {
       include: {
         doctor: true,
         patient: true,
-        pharmacy: true
-      }
+        pharmacy: true,
+      },
     });
 
     if (!user) {
@@ -95,7 +96,7 @@ router.patch("/user/:id/suspend", async (req, res) => {
     // Can't suspend admins
     const user = await prisma.user.findUnique({
       where: { id: userId },
-      select: { role: true }
+      select: { role: true },
     });
 
     if (user?.role === "SUPERADMIN") {
@@ -105,7 +106,7 @@ router.patch("/user/:id/suspend", async (req, res) => {
     // For now, we don't have a suspension field on User, so just track last activity
     const updated = await prisma.user.update({
       where: { id: userId },
-      data: { updatedAt: new Date() }
+      data: { updatedAt: new Date() },
     });
 
     res.json({ success: true, message: "User suspension tracked" });
@@ -124,7 +125,11 @@ router.get("/dashboard", async (req, res) => {
     // Use helper for safe counts if models might be missing
     const hasModel = (m) => m && typeof m.count === "function";
     const safeCount = async (fn) => {
-      try { return await fn(); } catch (_) { return 0; }
+      try {
+        return await fn();
+      } catch (_) {
+        return 0;
+      }
     };
 
     // Parallel fetch for dashboard stats
@@ -138,25 +143,27 @@ router.get("/dashboard", async (req, res) => {
       totalMessages,
       totalTickets,
       totalConsultations,
-      totalPrescriptions
+      totalPrescriptions,
     ] = await Promise.all([
       // Users
       safeCount(() => prisma.user.count()),
       safeCount(() => prisma.user.count({ where: { role: "DOCTOR" } })),
       safeCount(() => prisma.user.count({ where: { role: "PATIENT" } })),
       safeCount(() => prisma.user.count({ where: { role: "SUPPORT" } })),
-      
-      // Admins (if exists)
-      hasModel(prisma.admin) ? safeCount(() => prisma.admin.count()) : 0,
+
+      // Admins
+      safeCount(() => prisma.user.count({ where: { role: "ADMIN" } })),
 
       // Subscriptions
-      hasModel(prisma.subscription) ? safeCount(() => prisma.subscription.count({ where: { status: "ACTIVE" } })) : 0,
+      safeCount(() =>
+        prisma.subscription.count({ where: { status: "ACTIVE" } }),
+      ),
 
       // Activity
-      hasModel(prisma.message) ? safeCount(() => prisma.message.count()) : 0,
-      hasModel(prisma.supportTicket) ? safeCount(() => prisma.supportTicket.count()) : 0,
-      hasModel(prisma.videoConsultation) ? safeCount(() => prisma.videoConsultation.count()) : 0,
-      hasModel(prisma.prescription) ? safeCount(() => prisma.prescription.count()) : 0,
+      safeCount(() => prisma.message.count()),
+      safeCount(() => prisma.supportTicket.count()),
+      safeCount(() => prisma.videoConsultation.count()),
+      safeCount(() => prisma.prescription.count()),
     ]);
 
     res.json({
@@ -170,7 +177,7 @@ router.get("/dashboard", async (req, res) => {
       totalTickets,
       totalConsultations,
       totalPrescriptions,
-      lastUpdated: new Date()
+      lastUpdated: new Date(),
     });
   } catch (err) {
     console.error("Failed to fetch admin dashboard:", err);
@@ -193,14 +200,14 @@ router.get("/reports", async (req, res) => {
         doctors: await prisma.user.count({ where: { role: "DOCTOR" } }),
         patients: await prisma.user.count({ where: { role: "PATIENT" } }),
         pharmacies: await prisma.user.count({ where: { role: "PHARMACY" } }),
-        support: await prisma.user.count({ where: { role: "SUPPORT" } })
+        support: await prisma.user.count({ where: { role: "SUPPORT" } }),
       };
     }
 
     if (reportType === "activity" || reportType === "all") {
       report.recentTickets = await prisma.supportTicket.findMany({
         take: 10,
-        orderBy: { createdAt: "desc" }
+        orderBy: { createdAt: "desc" },
       });
     }
 
@@ -228,13 +235,13 @@ router.get("/support-tickets", async (req, res) => {
       prisma.supportTicket.findMany({
         where,
         include: {
-          user: { select: { firstName: true, lastName: true, email: true } }
+          user: { select: { firstName: true, lastName: true, email: true } },
         },
         skip,
         take: limit,
-        orderBy: { createdAt: "desc" }
+        orderBy: { createdAt: "desc" },
       }),
-      prisma.supportTicket.count({ where })
+      prisma.supportTicket.count({ where }),
     ]);
 
     res.json({
@@ -243,8 +250,8 @@ router.get("/support-tickets", async (req, res) => {
         page,
         limit,
         total,
-        pages: Math.ceil(total / limit)
-      }
+        pages: Math.ceil(total / limit),
+      },
     });
   } catch (err) {
     console.error("Failed to fetch support tickets:", err);
