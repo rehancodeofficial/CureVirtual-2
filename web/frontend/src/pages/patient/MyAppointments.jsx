@@ -1,18 +1,15 @@
 // FILE: src/pages/patient/MyAppointments.jsx
-import { useCallback, useEffect, useState } from 'react';
-import DashboardLayout from '../../layouts/DashboardLayout';
-import api from '../../Lib/api';
-import { FaPlusCircle, FaTrash, FaVideo, FaCalendarAlt } from 'react-icons/fa';
-import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+import { useCallback, useEffect, useState } from "react";
+import DashboardLayout from "../../layouts/DashboardLayout";
+import api from "../../Lib/api";
+import { FaPlusCircle, FaTrash, FaVideo, FaCalendarAlt } from "react-icons/fa";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 export default function MyAppointments() {
-  const role = 'PATIENT';
-  const patientUserId = localStorage.getItem('userId');
-  const userName =
-    localStorage.getItem('userName') ||
-    localStorage.getItem('name') ||
-    'Patient';
+  const role = "PATIENT";
+  const patientUserId = localStorage.getItem("userId");
+  const userName = localStorage.getItem("userName") || localStorage.getItem("name") || "Patient";
 
   const [appointments, setAppointments] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -21,22 +18,22 @@ export default function MyAppointments() {
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [toCancelId, setToCancelId] = useState(null);
   const [form, setForm] = useState({
-    doctorId: '',
-    appointmentDate: '',
-    reason: '',
+    doctorId: "",
+    appointmentDate: "",
+    reason: "",
   });
 
   const fetchAppointments = useCallback(async () => {
     try {
       setLoading(true);
-      const res = await api.get('/patient/appointments', {
+      const res = await api.get("/patient/appointments", {
         params: { patientId: patientUserId },
       });
       const data = Array.isArray(res.data) ? res.data : res.data?.data || [];
       setAppointments(data);
     } catch (err) {
-      console.error('❌ Error loading appointments:', err);
-      toast.error('Failed to load appointments');
+      console.error("❌ Error loading appointments:", err);
+      toast.error("Failed to load appointments");
     } finally {
       setLoading(false);
     }
@@ -44,18 +41,20 @@ export default function MyAppointments() {
 
   const loadDoctors = useCallback(async () => {
     try {
-      const res = await api.get('/patient/doctors/all');
+      const res = await api.get("/patient/doctors/all");
       const list = Array.isArray(res.data) ? res.data : res.data?.data || [];
       setDoctors(
         list.map((d) => ({
           id: d.id,
-          name: d.user ? `${d.user.firstName} ${d.user.lastName}`.trim() || 'Unnamed Doctor' : 'Unnamed Doctor',
-          specialization: d.specialization || 'General',
+          name: d.user
+            ? `${d.user.firstName} ${d.user.lastName}`.trim() || "Unnamed Doctor"
+            : "Unnamed Doctor",
+          specialization: d.specialization || "General",
         }))
       );
     } catch (err) {
-      console.error('Error loading doctors:', err);
-      toast.error('Failed to load doctors');
+      console.error("Error loading doctors:", err);
+      toast.error("Failed to load doctors");
     }
   }, []);
 
@@ -67,18 +66,18 @@ export default function MyAppointments() {
     e.preventDefault();
     try {
       const isoDate = new Date(form.appointmentDate).toISOString();
-      await api.post('/patient/appointments', {
+      await api.post("/patient/appointments", {
         doctorId: form.doctorId,
         appointmentDate: isoDate,
         reason: form.reason || null,
         patientId: patientUserId,
       });
-      toast.success('Appointment booked successfully!');
+      toast.success("Appointment booked successfully!");
       setBookOpen(false);
-      setForm({ doctorId: '', appointmentDate: '', reason: '' });
+      setForm({ doctorId: "", appointmentDate: "", reason: "" });
       await fetchAppointments();
     } catch (err) {
-      toast.error(err?.response?.data?.error || 'Failed to book appointment');
+      toast.error(err?.response?.data?.error || "Failed to book appointment");
     }
   };
 
@@ -91,27 +90,28 @@ export default function MyAppointments() {
     if (!toCancelId) return;
     try {
       await api.patch(`/patient/appointments/${toCancelId}/cancel`);
-      toast.success('Appointment cancelled');
+      toast.success("Appointment cancelled");
       setConfirmOpen(false);
       setToCancelId(null);
       await fetchAppointments();
     } catch (err) {
-      toast.error('Failed to cancel appointment');
+      console.error(err);
+      toast.error("Failed to cancel appointment");
     }
   };
 
   const getStatusColor = (status) => {
     switch (status) {
-      case 'APPROVED':
-        return 'bg-green-500/20 text-green-500 border border-green-500/30';
-      case 'PENDING':
-        return 'bg-orange-500/20 text-orange-500 border border-orange-500/30';
-      case 'COMPLETED':
-        return 'bg-blue-500/20 text-blue-500 border border-blue-500/30';
-      case 'CANCELLED':
-        return 'bg-red-500/20 text-red-500 border border-red-500/30';
+      case "APPROVED":
+        return "bg-green-500/20 text-green-500 border border-green-500/30";
+      case "PENDING":
+        return "bg-orange-500/20 text-orange-500 border border-orange-500/30";
+      case "COMPLETED":
+        return "bg-blue-500/20 text-blue-500 border border-blue-500/30";
+      case "CANCELLED":
+        return "bg-red-500/20 text-red-500 border border-red-500/30";
       default:
-        return 'bg-gray-500/20 text-gray-500 border border-gray-500/30';
+        return "bg-gray-500/20 text-gray-500 border border-gray-500/30";
     }
   };
 
@@ -181,27 +181,37 @@ export default function MyAppointments() {
                   </tr>
                 ) : (
                   appointments.map((a) => (
-                    <tr
-                      key={a.id}
-                      className="hover:bg-[var(--bg-main)]/30 transition-colors"
-                    >
+                    <tr key={a.id} className="hover:bg-[var(--bg-main)]/30 transition-colors">
                       <td className="px-6 py-4 text-sm font-black text-[var(--text-main)]">
-                        {a.doctor?.user ? `${a.doctor.user.firstName} ${a.doctor.user.lastName}`.trim() : 'Unknown'}
+                        {a.doctor?.user
+                          ? `${a.doctor.user.firstName} ${a.doctor.user.lastName}`.trim()
+                          : "Unknown"}
                       </td>
                       <td className="px-6 py-4 text-xs font-bold text-[var(--text-soft)]">
-                        {a.doctor?.specialization || 'General'}
+                        {a.doctor?.specialization || "General"}
                       </td>
-                      <td className="px-6 py-4 text-xs font-mono font-bold text-[var(--brand-blue)]">
-                        {a.appointmentDate
-                          ? new Date(a.appointmentDate).toLocaleString('en-GB', {
-                              year: 'numeric',
-                              month: '2-digit',
-                              day: '2-digit',
-                              hour: '2-digit',
-                              minute: '2-digit',
-                              hour12: false
-                            })
-                          : '—'}
+                      <td className="px-6 py-4">
+                        {a.appointmentDate ? (
+                          <div className="space-y-0.5">
+                            <div className="text-[10px] font-black uppercase tracking-widest text-[var(--text-muted)]">
+                              {new Date(a.appointmentDate).toLocaleDateString("en-US", {
+                                weekday: "long",
+                              })}
+                            </div>
+                            <div className="text-xs font-mono font-bold text-[var(--brand-blue)]">
+                              {new Date(a.appointmentDate).toLocaleString("en-GB", {
+                                year: "numeric",
+                                month: "2-digit",
+                                day: "2-digit",
+                                hour: "2-digit",
+                                minute: "2-digit",
+                                hour12: false,
+                              })}
+                            </div>
+                          </div>
+                        ) : (
+                          "—"
+                        )}
                       </td>
                       <td className="px-6 py-4">
                         <span
@@ -214,7 +224,7 @@ export default function MyAppointments() {
                       </td>
                       <td className="px-6 py-4">
                         <div className="flex justify-center gap-3">
-                          {a.status === 'PENDING' && (
+                          {a.status === "PENDING" && (
                             <button
                               onClick={() => askCancel(a.id)}
                               className="p-2 rounded-xl bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-[var(--text-main)] transition-all"
@@ -222,9 +232,9 @@ export default function MyAppointments() {
                               <FaTrash size={14} />
                             </button>
                           )}
-                          {a.status === 'APPROVED' && (
+                          {a.status === "APPROVED" && (
                             <button
-                              onClick={() => toast.info('Starting video...')}
+                              onClick={() => toast.info("Starting video...")}
                               className="p-2 rounded-xl bg-blue-500/10 text-blue-500 hover:bg-blue-500 hover:text-[var(--text-main)] transition-all"
                             >
                               <FaVideo size={14} />
@@ -259,9 +269,7 @@ export default function MyAppointments() {
                 <select
                   className="w-full bg-[var(--bg-main)] border border-[var(--border)] rounded-2xl py-3.5 px-4 text-xs font-bold focus:border-[var(--brand-green)] outline-none"
                   value={form.doctorId}
-                  onChange={(e) =>
-                    setForm({ ...form, doctorId: e.target.value })
-                  }
+                  onChange={(e) => setForm({ ...form, doctorId: e.target.value })}
                   required
                 >
                   <option value="">-- Choose Specialist --</option>
@@ -280,9 +288,7 @@ export default function MyAppointments() {
                   type="datetime-local"
                   className="w-full bg-[var(--bg-main)] border border-[var(--border)] rounded-2xl py-3.5 px-4 text-xs font-bold focus:border-[var(--brand-green)] outline-none"
                   value={form.appointmentDate}
-                  onChange={(e) =>
-                    setForm({ ...form, appointmentDate: e.target.value })
-                  }
+                  onChange={(e) => setForm({ ...form, appointmentDate: e.target.value })}
                   required
                 />
               </div>
