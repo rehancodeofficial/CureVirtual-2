@@ -1,5 +1,5 @@
 // FILE: src/pages/admin/ManageUsers.jsx
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback } from "react";
 import {
   FaEye,
   FaEdit,
@@ -10,11 +10,11 @@ import {
   FaUserShield,
   FaSearch,
   FaShieldAlt,
-} from 'react-icons/fa';
-import DashboardLayout from '../../layouts/DashboardLayout';
-import api from '../../Lib/api';
-import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+} from "react-icons/fa";
+import DashboardLayout from "../../layouts/DashboardLayout";
+import api from "../../Lib/api";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 export default function ManageUsers() {
   const [users, setUsers] = useState([]);
@@ -23,25 +23,25 @@ export default function ManageUsers() {
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [showProfileModal, setShowProfileModal] = useState(false);
-  const [search, setSearch] = useState('');
+  const [search, setSearch] = useState("");
 
   const [newUser, setNewUser] = useState({
-    name: '',
-    email: '',
-    role: 'SUPPORT',
+    name: "",
+    email: "",
+    role: "SUPPORT",
   });
 
-  const role = localStorage.getItem('role');
-  const userName =
-    localStorage.getItem('userName') || localStorage.getItem('name') || 'Admin';
+  const role = localStorage.getItem("role");
+  const userName = localStorage.getItem("userName") || localStorage.getItem("name") || "Admin";
 
   const fetchUsers = useCallback(async () => {
     setLoading(true);
     try {
-      const res = await api.get('/admin/users');
-      setUsers(res.data || []);
+      const res = await api.get("/admin/users");
+      const usersData = Array.isArray(res.data) ? res.data : res.data?.data || [];
+      setUsers(usersData);
     } catch (err) {
-      toast.error('Database Link Failure: Could not sync user registry.');
+      toast.error("Database Link Failure: Could not sync user registry.");
     } finally {
       setLoading(false);
     }
@@ -54,41 +54,38 @@ export default function ManageUsers() {
   const handleCreateUser = async (e) => {
     e.preventDefault();
     try {
-      await api.post('/admin/users', newUser);
-      toast.success('Identity Provisioned Successfully.');
+      await api.post("/admin/users", newUser);
+      toast.success("Identity Provisioned Successfully.");
       setShowCreateModal(false);
-      setNewUser({ name: '', email: '', role: 'SUPPORT' });
+      setNewUser({ name: "", email: "", role: "SUPPORT" });
       fetchUsers();
     } catch (err) {
-      toast.error('Provisioning Protocol Failed.');
+      toast.error("Provisioning Protocol Failed.");
     }
   };
 
   const handleSuspendUser = async (id) => {
-    if (!window.confirm('Authorize Protocol: Revoke access for this identity?'))
-      return;
+    if (!window.confirm("Authorize Protocol: Revoke access for this identity?")) return;
     try {
       await api.patch(`/admin/users/${id}/suspend`);
-      toast.warning('Identity Status: RESTRICTED.');
+      toast.warning("Identity Status: RESTRICTED.");
       fetchUsers();
     } catch (err) {
-      toast.error('Suspension Overload: Protocol Aborted.');
+      toast.error("Suspension Overload: Protocol Aborted.");
     }
   };
 
   const handleDeleteUser = async (id) => {
     if (
-      !window.confirm(
-        '⚠️ IRREVERSIBLE ACTION: Permanently purge this identity from central core?'
-      )
+      !window.confirm("⚠️ IRREVERSIBLE ACTION: Permanently purge this identity from central core?")
     )
       return;
     try {
       await api.delete(`/admin/users/${id}`);
-      toast.info('Identity Purged Successfully.');
+      toast.info("Identity Purged Successfully.");
       fetchUsers();
     } catch (err) {
-      toast.error('Purge Protocol Failure.');
+      toast.error("Purge Protocol Failure.");
     }
   };
 
@@ -96,11 +93,11 @@ export default function ManageUsers() {
     e.preventDefault();
     try {
       await api.put(`/admin/users/${selectedUser.id}`, selectedUser);
-      toast.success('Identity Updates Synchronized.');
+      toast.success("Identity Updates Synchronized.");
       setShowEditModal(false);
       fetchUsers();
     } catch (err) {
-      toast.error('Synchronization Error.');
+      toast.error("Synchronization Error.");
     }
   };
 
@@ -119,8 +116,7 @@ export default function ManageUsers() {
               Internal Registry
             </h2>
             <h1 className="text-4xl font-black text-[var(--text-main)] tracking-tighter uppercase flex items-center gap-4">
-              <FaShieldAlt className="text-[var(--brand-green)]" /> Personnel
-              Data
+              <FaShieldAlt className="text-[var(--brand-green)]" /> Personnel Data
             </h1>
           </div>
           <button
@@ -185,10 +181,7 @@ export default function ManageUsers() {
                   </tr>
                 ) : (
                   filteredUsers.map((u) => (
-                    <tr
-                      key={u.id}
-                      className="hover:bg-[var(--bg-main)]/30 transition-colors group"
-                    >
+                    <tr key={u.id} className="hover:bg-[var(--bg-main)]/30 transition-colors group">
                       <td className="px-8 py-5 text-sm font-black text-[var(--text-main)] uppercase tracking-tight">
                         {u.name}
                       </td>
@@ -204,11 +197,11 @@ export default function ManageUsers() {
                         <span
                           className={`px-4 py-1 rounded-full text-[9px] font-black uppercase tracking-widest ${
                             u.isSuspended
-                              ? 'bg-red-500/10 text-red-500 border border-red-500/20'
-                              : 'bg-green-500/10 text-green-500 border border-green-500/20'
+                              ? "bg-red-500/10 text-red-500 border border-red-500/20"
+                              : "bg-green-500/10 text-green-500 border border-green-500/20"
                           }`}
                         >
-                          {u.isSuspended ? 'RESTRICTED' : 'AUTHORIZED'}
+                          {u.isSuspended ? "RESTRICTED" : "AUTHORIZED"}
                         </span>
                       </td>
                       <td className="px-8 py-5 text-center">
@@ -300,10 +293,7 @@ export default function ManageUsers() {
                   Refine Identity
                 </h3>
                 <form onSubmit={handleUpdateUser} className="space-y-6">
-                  <UserForm
-                    newUser={selectedUser}
-                    setNewUser={setSelectedUser}
-                  />
+                  <UserForm newUser={selectedUser} setNewUser={setSelectedUser} />
                   <div className="flex gap-4 pt-6">
                     <button
                       type="button"
@@ -343,7 +333,7 @@ export default function ManageUsers() {
                         Protocol Status
                       </p>
                       <p className="text-sm font-black text-[var(--text-main)]">
-                        {selectedUser.isSuspended ? 'RESTRICTED' : 'AUTHORIZED'}
+                        {selectedUser.isSuspended ? "RESTRICTED" : "AUTHORIZED"}
                       </p>
                     </div>
                   </div>
