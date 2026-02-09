@@ -1,8 +1,8 @@
 // FILE: src/pages/patient/PatientDashboard.jsx
-import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import api from '../../Lib/api';
-import DashboardLayout from '../../layouts/DashboardLayout';
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import api from "../../Lib/api";
+import DashboardLayout from "../../layouts/DashboardLayout";
 import {
   FaCalendarAlt,
   FaPrescription,
@@ -11,7 +11,7 @@ import {
   FaHeartbeat,
   FaArrowRight,
   FaCheckCircle,
-} from 'react-icons/fa';
+} from "react-icons/fa";
 
 export default function PatientDashboard() {
   const navigate = useNavigate();
@@ -24,11 +24,8 @@ export default function PatientDashboard() {
     totalDoctors: 0,
   });
 
-  const patientId = localStorage.getItem('userId');
-  const userName =
-    localStorage.getItem('userName') ||
-    localStorage.getItem('name') ||
-    'Patient';
+  const patientId = localStorage.getItem("userId");
+  const userName = localStorage.getItem("userName") || localStorage.getItem("name") || "Patient";
 
   useEffect(() => {
     const fetchStats = async () => {
@@ -37,7 +34,7 @@ export default function PatientDashboard() {
         const data = res?.data?.data ?? res?.data ?? null;
         if (data) setStats(data);
       } catch (err) {
-        console.error('Error fetching patient stats:', err);
+        console.error("Error fetching patient stats:", err);
       }
     };
     if (patientId) fetchStats();
@@ -53,7 +50,7 @@ export default function PatientDashboard() {
               Wellness Hub
             </h2>
             <h1 className="text-3xl lg:text-4xl font-black text-[var(--text-main)] tracking-tighter leading-none">
-              Hello, {userName.split(' ')[0]}
+              Hello, {userName.split(" ")[0]}
             </h1>
           </div>
           <div className="flex items-center gap-3">
@@ -62,7 +59,7 @@ export default function PatientDashboard() {
               Vitals Nominal
             </div>
             <button
-              onClick={() => navigate('/patient/book-appointment')}
+              onClick={() => navigate("/patient/book-appointment")}
               className="btn btn-primary !py-3 !px-6 shadow-green-500/30"
             >
               <FaCalendarAlt /> Book New
@@ -78,7 +75,7 @@ export default function PatientDashboard() {
             icon={<FaCalendarAlt />}
             color="--brand-green"
             subtext="Track sessions"
-            onClick={() => navigate('/patient/my-appointments')}
+            onClick={() => navigate("/patient/my-appointments")}
           />
           <StatCard
             title="Active Scripts"
@@ -86,7 +83,7 @@ export default function PatientDashboard() {
             icon={<FaPrescription />}
             color="--brand-blue"
             subtext="Records"
-            onClick={() => navigate('/patient/prescriptions')}
+            onClick={() => navigate("/patient/prescriptions")}
           />
           <StatCard
             title="Video Sessions"
@@ -94,7 +91,7 @@ export default function PatientDashboard() {
             icon={<FaVideo />}
             color="--brand-orange"
             subtext="History"
-            onClick={() => navigate('/patient/video-consultation')}
+            onClick={() => navigate("/patient/video-consultation")}
           />
           <StatCard
             title="Medical Team"
@@ -102,7 +99,7 @@ export default function PatientDashboard() {
             icon={<FaUserMd />}
             color="--brand-green"
             subtext="Active"
-            onClick={() => navigate('/patient/doctors/my')}
+            onClick={() => navigate("/patient/doctors/my")}
           />
         </div>
 
@@ -118,13 +115,13 @@ export default function PatientDashboard() {
                 icon={<FaUserMd className="text-[var(--brand-green)]" />}
                 title="Find Specialist"
                 desc="Licensed doctors by category"
-                onClick={() => navigate('/patient/doctors/list')}
+                onClick={() => navigate("/patient/doctors/list")}
               />
               <QuickLink
                 icon={<FaVideo className="text-[var(--brand-blue)]" />}
                 title="Join Consult"
                 desc="Encrypted high-speed video"
-                onClick={() => navigate('/patient/video-consultation')}
+                onClick={() => navigate("/patient/video-consultation")}
               />
             </div>
           </div>
@@ -135,16 +132,14 @@ export default function PatientDashboard() {
                 <FaCheckCircle />
               </div>
               <div>
-                <h4 className="font-black text-lg tracking-tight">
-                  Premium Care
-                </h4>
+                <h4 className="font-black text-lg tracking-tight">Premium Care</h4>
                 <p className="text-[var(--text-main)]/70 text-[11px] font-bold leading-relaxed italic">
                   Systems normalized. Healthcare optimized for efficiency.
                 </p>
               </div>
             </div>
             <button
-              onClick={() => navigate('/patient/support')}
+              onClick={() => navigate("/patient/support")}
               className="w-full bg-white text-[var(--brand-blue)] font-black uppercase tracking-widest text-[10px] py-4 rounded-2xl hover:bg-gray-100 transition-all shadow-xl mt-6"
             >
               Help Desk
@@ -168,9 +163,7 @@ function StatCard({ title, value, icon, color, subtext, onClick }) {
           <p className="text-[10px] font-black uppercase tracking-widest text-[var(--text-muted)]">
             {title}
           </p>
-          <p className="text-3xl font-black text-[var(--text-main)] tracking-tighter">
-            {value}
-          </p>
+          <p className="text-3xl font-black text-[var(--text-main)] tracking-tighter">{value}</p>
         </div>
         <div
           className="h-10 w-10 rounded-xl flex items-center justify-center text-xl shadow-inner bg-[var(--bg-main)]"
@@ -180,9 +173,7 @@ function StatCard({ title, value, icon, color, subtext, onClick }) {
         </div>
       </div>
       <div className="flex items-center justify-between mt-4">
-        <span className="text-[10px] font-bold text-[var(--text-soft)]">
-          {subtext}
-        </span>
+        <span className="text-[10px] font-bold text-[var(--text-soft)]">{subtext}</span>
         <FaArrowRight className="text-[10px] text-[var(--text-muted)] group-hover:text-[var(--brand-green)] group-hover:translate-x-1 transition-all" />
       </div>
       <div
@@ -203,12 +194,8 @@ function QuickLink({ icon, title, desc, onClick }) {
         {icon}
       </div>
       <div className="overflow-hidden">
-        <p className="font-black text-[var(--text-main)] text-xs mb-0.5">
-          {title}
-        </p>
-        <p className="text-[10px] font-bold text-[var(--text-muted)] truncate">
-          {desc}
-        </p>
+        <p className="font-black text-[var(--text-main)] text-xs mb-0.5">{title}</p>
+        <p className="text-[10px] font-bold text-[var(--text-muted)] truncate">{desc}</p>
       </div>
     </div>
   );
