@@ -1,7 +1,7 @@
 // FILE: src/pages/shared/UserProfile.jsx
-import { useEffect, useState } from 'react';
-import DashboardLayout from '../../layouts/DashboardLayout';
-import api from '../../Lib/api';
+import { useEffect, useState } from "react";
+import DashboardLayout from "../../layouts/DashboardLayout";
+import api from "../../Lib/api";
 import {
   FaUserShield,
   FaEnvelope,
@@ -9,13 +9,12 @@ import {
   FaIdBadge,
   FaGlobe,
   FaShieldAlt,
-} from 'react-icons/fa';
+} from "react-icons/fa";
 
 export default function UserProfile() {
-  const userId = localStorage.getItem('userId');
-  const role = localStorage.getItem('role') || 'USER';
-  const userName =
-    localStorage.getItem('userName') || localStorage.getItem('name') || 'User';
+  const userId = localStorage.getItem("userId");
+  const role = localStorage.getItem("role") || "USER";
+  const userName = localStorage.getItem("userName") || localStorage.getItem("name") || "User";
 
   const [loading, setLoading] = useState(true);
   const [userData, setUserData] = useState(null);
@@ -28,7 +27,7 @@ export default function UserProfile() {
         const res = await api.get(`/users/${userId}`);
         setUserData(res.data?.data || res.data);
       } catch (err) {
-        console.error('Failed to load user intelligence.');
+        console.error("Failed to load user intelligence:", err);
       } finally {
         setLoading(false);
       }
@@ -36,12 +35,7 @@ export default function UserProfile() {
     if (userId) fetchUserData();
   }, [userId]);
 
-  const InfoCard = ({
-    icon: Icon,
-    label,
-    value,
-    color = 'var(--brand-blue)',
-  }) => (
+  const InfoCard = ({ icon: Icon, label, value, color = "var(--brand-blue)" }) => (
     <div className="card glass flex items-center gap-6 group hover:translate-x-1 transition-all">
       <div
         className={`h-12 w-12 rounded-2xl flex items-center justify-center text-white shadow-lg`}
@@ -53,12 +47,25 @@ export default function UserProfile() {
         <p className="text-[9px] font-black uppercase tracking-[0.2em] text-[var(--text-muted)] mb-1">
           {label}
         </p>
-        <p className="text-sm font-black text-[var(--text-main)]">
-          {value || 'DATA_NOT_SYNCED'}
-        </p>
+        <p className="text-sm font-black text-[var(--text-main)]">{value || "DATA_NOT_SYNCED"}</p>
       </div>
     </div>
   );
+
+  if (loading) {
+    return (
+      <DashboardLayout role={role} user={{ name: userName }}>
+        <div className="flex items-center justify-center min-h-[60vh]">
+          <div className="text-center space-y-4">
+            <div className="h-12 w-12 border-4 border-[var(--brand-green)] border-t-transparent rounded-full animate-spin mx-auto"></div>
+            <p className="text-[10px] font-black uppercase tracking-[0.4em] text-[var(--brand-green)] animate-pulse">
+              Initializing Intelligence Link...
+            </p>
+          </div>
+        </div>
+      </DashboardLayout>
+    );
+  }
 
   return (
     <DashboardLayout role={role} user={{ name: userName }}>
@@ -89,16 +96,11 @@ export default function UserProfile() {
         </div>
 
         <div className="grid gap-6 md:grid-cols-2">
-          <InfoCard
-            icon={FaIdBadge}
-            label="Identity ID"
-            value={userId}
-            color="var(--brand-blue)"
-          />
+          <InfoCard icon={FaIdBadge} label="Identity ID" value={userId} color="var(--brand-blue)" />
           <InfoCard
             icon={FaEnvelope}
             label="Communication Hub"
-            value={userData?.email || 'syncing...'}
+            value={userData?.email || "syncing..."}
             color="var(--brand-green)"
           />
           <InfoCard
@@ -113,7 +115,7 @@ export default function UserProfile() {
             value={
               userData?.createdAt
                 ? new Date(userData.createdAt).toLocaleDateString()
-                : 'PREHISTORIC'
+                : "PREHISTORIC"
             }
             color="var(--brand-blue)"
           />
@@ -128,28 +130,16 @@ export default function UserProfile() {
           </h3>
           <div className="space-y-4 text-xs font-bold text-[var(--text-soft)]">
             <p className="flex justify-between items-center border-b border-[var(--border)] pb-4">
-              <span className="uppercase tracking-widest opacity-60">
-                Neural Link Status
-              </span>
-              <span className="text-[var(--brand-green)]">
-                ESTABLISHED_SECURE
-              </span>
+              <span className="uppercase tracking-widest opacity-60">Neural Link Status</span>
+              <span className="text-[var(--brand-green)]">ESTABLISHED_SECURE</span>
             </p>
             <p className="flex justify-between items-center border-b border-[var(--border)] pb-4">
-              <span className="uppercase tracking-widest opacity-60">
-                Encryption Standard
-              </span>
-              <span className="text-[var(--text-main)]">
-                AES-256 GCM PROTOCOL
-              </span>
+              <span className="uppercase tracking-widest opacity-60">Encryption Standard</span>
+              <span className="text-[var(--text-main)]">AES-256 GCM PROTOCOL</span>
             </p>
             <p className="flex justify-between items-center pb-4">
-              <span className="uppercase tracking-widest opacity-60">
-                Global Authorization
-              </span>
-              <span className="text-[var(--text-main)] underline">
-                VIEW_CERTIFICATES
-              </span>
+              <span className="uppercase tracking-widest opacity-60">Global Authorization</span>
+              <span className="text-[var(--text-main)] underline">VIEW_CERTIFICATES</span>
             </p>
           </div>
         </div>
