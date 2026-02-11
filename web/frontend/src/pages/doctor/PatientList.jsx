@@ -173,7 +173,6 @@ export default function PatientList() {
       {viewPatient && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
           <div
-            className="absolute inset-0 bg-[var(--bg-main)]/80 backdrop-blur-sm"
             onClick={() => setViewPatient(null)}
           ></div>
           <div className="relative w-full max-w-2xl glass !p-8 animate-in zoom-in-95 duration-300 max-h-[90vh] overflow-y-auto scrollbar-hide">

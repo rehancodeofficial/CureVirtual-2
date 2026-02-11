@@ -233,7 +233,7 @@ export default function AdminList() {
       {viewAdmin && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
           <div
-            className="absolute inset-0 bg-[var(--bg-main)]/80 backdrop-blur-sm"
+          
             onClick={() => setViewAdmin(null)}
           ></div>
           <div className="relative w-full max-w-lg glass !p-8 animate-in zoom-in-95 duration-300">
@@ -301,8 +301,7 @@ export default function AdminList() {
       {editAdmin && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
           <div
-            className="absolute inset-0 bg-[var(--bg-main)]/80 backdrop-blur-sm"
-            onClick={() => setEditAdmin(null)}
+           onClick={() => setEditAdmin(null)}
           ></div>
           <div className="relative w-full max-w-lg glass !p-8 animate-in zoom-in-95 duration-300">
             <h2 className="text-2xl font-black text-[var(--text-main)] tracking-tighter uppercase mb-6">
