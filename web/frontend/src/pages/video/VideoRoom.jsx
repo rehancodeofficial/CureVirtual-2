@@ -22,8 +22,17 @@ export default function VideoRoom() {
       setParticipants((prev) => prev.filter((p) => p !== participant));
     };
 
-    Video.connect(token, { name: roomName }).then((connectedRoom) => {
+    Video.connect(token, { name: roomName, audio: true, video: true }).then((connectedRoom) => {
       setRoom(connectedRoom);
+
+      // Attach local participant tracks
+      const localContainer = document.getElementById("local-video");
+      connectedRoom.localParticipant.tracks.forEach((publication) => {
+        if (publication.track) {
+          localContainer.appendChild(publication.track.attach());
+        }
+      });
+
       connectedRoom.on("participantConnected", participantConnected);
       connectedRoom.on("participantDisconnected", participantDisconnected);
       connectedRoom.participants.forEach(participantConnected);
@@ -33,7 +42,7 @@ export default function VideoRoom() {
       setRoom((currentRoom) => {
         if (currentRoom) {
           currentRoom.localParticipant.tracks.forEach((trackPub) => {
-            trackPub.track.stop();
+            if (trackPub.track) trackPub.track.stop();
           });
           currentRoom.disconnect();
         }

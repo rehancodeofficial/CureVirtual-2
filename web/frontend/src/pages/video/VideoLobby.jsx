@@ -14,7 +14,7 @@ export default function VideoLobby() {
 
     setLoading(true);
     try {
-      const res = await api.post("/twilio/token", { identity, roomName });
+      const res = await api.post("/videocall/token", { identity, roomName });
       const { token } = res.data;
       localStorage.setItem("twilioToken", token);
       localStorage.setItem("roomName", roomName);
@@ -30,9 +30,7 @@ export default function VideoLobby() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-[var(--bg-main)]/90 text-[var(--text-main)]">
       <div className="bg-[var(--bg-card)] p-8 rounded-2xl shadow-lg w-full max-w-md">
-        <h1 className="text-2xl font-bold mb-6 text-center text-green-400">
-          Join Consultation
-        </h1>
+        <h1 className="text-2xl font-bold mb-6 text-center text-green-400">Join Consultation</h1>
         <form onSubmit={handleJoin} className="space-y-4">
           <div>
             <label className="block mb-1">Your Name</label>
